@@ -147,9 +147,9 @@ s32 intro_level_select(void) {
     gCurrSaveFileNum = 4;
     gCurrActNum = 6;
 
-    print_text_centered(160, 80, "SELECT STAGE");
-    print_text_centered(160, 30, "PRESS START BUTTON");
-    print_text_fmt_int(40, 60, "%2d", gCurrLevelNum);
+    print_text_centered(160, 80, "LPW DEBUG SELECT STAGE");
+    print_text_centered(160, 30, "PRESS START BUTTON TO ENTER");
+    print_text_fmt_int(40, 60, "%03d", gCurrLevelNum);
     print_text(80, 60, sLevelSelectStageNames[gCurrLevelNum - 1]); // print stage name
 
     // start being pressed signals the stage to be started. that is, unless...
