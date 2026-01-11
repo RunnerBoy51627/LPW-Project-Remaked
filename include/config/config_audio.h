@@ -12,14 +12,14 @@
 /**
  * Red coins should use the unchanging JP sound effect.
  */
-// #define JP_RED_COIN_SOUND
+#define JP_RED_COIN_SOUND
 
 /** 
  * In vanilla, Mario's sounds are pitch shifted in real time in order to maintain a sense of consistency. This can be annoying when replacing Mario's sounds.
  * This define will disable this behavior, making sound replacements easier to manage. Use of this is not recommended unless you're actually replacing Mario's sounds.
  * When toggling this define, you will need to run `make clean` for it to apply.
  */
-// #define DISABLE_MARIO_PITCH_SHIFTING
+#define DISABLE_MARIO_PITCH_SHIFTING
 
 /** 
  * Enables the additional spacial processing that takes place with sound effects in vanilla.
@@ -49,4 +49,4 @@
  * Uses a much better implementation of reverb over vanilla's fake echo reverb. Great for caves or eerie levels, as well as just a better audio experience in general.
  * Reverb presets can be configured in audio/data.c to meet desired aesthetic/performance needs. More detailed usage info can also be found on the HackerSM64 Wiki page.
  */
-// #define BETTER_REVERB
+#define BETTER_REVERB

@@ -8,22 +8,22 @@
  * Enables some mechanics that change behavior depending on hardcoded level numbers.
  * TODO: separate this into separate defines, behavior params, or make these mechanics otherwise dynamic.
 */
-// #define ENABLE_VANILLA_LEVEL_SPECIFIC_CHECKS
+#define ENABLE_VANILLA_LEVEL_SPECIFIC_CHECKS
 
 /**
  * Enable lives and the lives counter. The number next to the define is the number of lives you start with.
  */
-// #define ENABLE_LIVES 4
+#define ENABLE_LIVES 2
 
 /**
  * This can be 0..127.
  */
-#define MAX_NUM_LIVES 100
+#define MAX_NUM_LIVES 127
 
 /**
  * This can be 0..32767.
  */
-#define MAX_NUM_COINS 999
+#define MAX_NUM_COINS 32767
 
 /**
  * Air/breath meter is separate from health meter when underwater.
@@ -63,12 +63,12 @@
 /**
  * Makes signs and NPCs easier to talk to.
  */
-// #define EASIER_DIALOG_TRIGGER
+#define EASIER_DIALOG_TRIGGER
 
 /**
  * Shows an "A" when Mario is able to talk [requires EASIER_DIALOG_TRIGGER].
  */
-// #define DIALOG_INDICATOR
+#define DIALOG_INDICATOR
 
 /**
  * Include the English characters that were missing from US segment2 and the rumble pak texture if using rumble.
@@ -76,7 +76,7 @@
  * [MAKE SURE TO INCLUDE EU AND JP/SH BASEROMS IN THE REPO TO OBTAIN THE ASSETS]
  * If this is disabled, backup assets will be used.
  */
-// #define COMPLETE_EN_US_SEGMENT2
+#define COMPLETE_EN_US_SEGMENT2
 
 /**
  * Removes multi-language cake screen.

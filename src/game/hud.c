@@ -406,7 +406,7 @@ void render_hud_breath_meter(void) {
 void render_hud_mario_lives(void) {
     print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y, ","); // 'Mario Head' glyph
     print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(38), HUD_TOP_Y, "*"); // 'X' glyph
-    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(54), HUD_TOP_Y, "%d", gHudDisplay.lives);
+    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(54), HUD_TOP_Y, "%02d", gHudDisplay.lives);
 }
 
 #ifdef VANILLA_STYLE_CUSTOM_DEBUG
@@ -425,15 +425,16 @@ void render_debug_mode(void) {
  * Renders the amount of coins collected.
  */
 void render_hud_coins(void) {
-    print_text(HUD_COINS_X, HUD_TOP_Y, "$"); // 'Coin' glyph
-    print_text((HUD_COINS_X + 16), HUD_TOP_Y, "*"); // 'X' glyph
-    print_text_fmt_int((HUD_COINS_X + 30), HUD_TOP_Y, "%d", gHudDisplay.coins);
+    print_text(HUD_COINS_X, (HUD_TOP_Y - 17), "$"); // 'Coin' glyph
+    print_text((HUD_COINS_X + 16), (HUD_TOP_Y - 17), "*"); // 'X' glyph
+    print_text_fmt_int((HUD_COINS_X + 30), (HUD_TOP_Y- 17), "%02d", gHudDisplay.coins);
 }
 
 /**
  * Renders the amount of stars collected.
  * Disables "X" glyph when Mario has 100 stars or more.
  */
+/**
 void render_hud_stars(void) {
     if (gHudFlash == HUD_FLASH_STARS && gGlobalTimer & 0x8) return;
     s8 showX = (gHudDisplay.stars < 100);
@@ -442,7 +443,12 @@ void render_hud_stars(void) {
     print_text_fmt_int((showX * 14) + GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(HUD_STARS_X - 16),
                        HUD_TOP_Y, "%d", gHudDisplay.stars);
 }
-
+*/
+void render_hud_stars(void) {
+    print_text(HUD_COINS_X, (HUD_TOP_Y), "^"); // 'Coin' glyph
+    print_text((HUD_COINS_X + 16), (HUD_TOP_Y), "*"); // 'X' glyph
+    print_text_fmt_int((HUD_COINS_X + 30), (HUD_TOP_Y), "%02d", gHudDisplay.stars);
+}
 /**
  * Unused function that renders the amount of keys collected.
  * Leftover function from the beta version of the game.
@@ -571,18 +577,17 @@ void render_hud(void) {
             render_hud_cannon_reticle();
         }
 
-#ifdef ENABLE_LIVES
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_LIVES) {
             render_hud_mario_lives();
         }
-#endif
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_COIN_COUNT) {
-            render_hud_coins();
+
         }
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_STAR_COUNT) {
             render_hud_stars();
+            render_hud_coins();
         }
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_KEYS) {

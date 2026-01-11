@@ -5,8 +5,7 @@ include util.mk
 # Default target
 default: all
 
-TARGET_STRING := sm64
-
+TARGET_STRING := LPW_sm64
 # Preprocessor definitions
 DEFINES :=
 
