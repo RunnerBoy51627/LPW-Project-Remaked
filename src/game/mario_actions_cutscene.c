@@ -210,7 +210,7 @@ Gfx *geo_switch_peach_eyes(s32 callContext, struct GraphNode *node, UNUSED s32 c
  */
 s32 get_star_collection_dialog(struct MarioState *m) {
     s32 i;
-    s32 dialogID = 0;
+    s32 dialogID = 34;
     s32 numStarsRequired;
 
     for (i = 0; i < ARRAY_COUNT(sStarsNeededForDialog); i++) {
@@ -983,7 +983,7 @@ s32 act_warp_door_spawn(struct MarioState *m) {
         set_mario_action(m, ACT_IDLE, 0);
 #endif
     }
-    set_mario_animation(m, MARIO_ANIM_FIRST_PERSON);
+    set_mario_animation(m, MARIO_ANIM_IDLE_HEAD_LEFT);
     stop_and_set_height_to_floor(m);
     return FALSE;
 }

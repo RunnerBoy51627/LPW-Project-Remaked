@@ -95,7 +95,7 @@ s32 check_fall_damage(struct MarioState *m, u32 hardFallAction) {
 
 s32 check_kick_or_dive_in_air(struct MarioState *m) {
     if (m->input & INPUT_B_PRESSED) {
-        return set_mario_action(m, m->forwardVel > 28.0f ? ACT_DIVE : ACT_JUMP_KICK, 0);
+        return set_mario_action(m, m->forwardVel > 28.0f ? ACT_DIVE : ACT_DIVE, 0);
     }
     return FALSE;
 }
@@ -445,7 +445,7 @@ s32 act_jump(struct MarioState *m) {
 
 s32 act_double_jump(struct MarioState *m) {
     s32 animation = (m->vel[1] >= 0.0f)
-        ? MARIO_ANIM_DOUBLE_JUMP_RISE
+        ? MARIO_ANIM_DOUBLE_JUMP_FALL
         : MARIO_ANIM_DOUBLE_JUMP_FALL;
 
     if (check_kick_or_dive_in_air(m)) {
@@ -463,8 +463,9 @@ s32 act_double_jump(struct MarioState *m) {
 }
 
 s32 act_triple_jump(struct MarioState *m) {
+
     if (gSpecialTripleJump) {
-        return set_mario_action(m, ACT_SPECIAL_TRIPLE_JUMP, 0);
+        return set_mario_action(m, ACT_TWIRLING, 0);
     }
 
     if (m->input & INPUT_B_PRESSED) {
@@ -476,10 +477,11 @@ s32 act_triple_jump(struct MarioState *m) {
     }
 
     play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, 0);
+    return set_mario_action(m, ACT_TWIRLING, 0);
 
-    common_air_action_step(m, ACT_TRIPLE_JUMP_LAND, MARIO_ANIM_TRIPLE_JUMP, 0);
+    //common_air_action_step(m, ACT_JUMP_LAND, MARIO_ANIM_FORWARD_SPINNING, 0);
 #if ENABLE_RUMBLE
-    if (m->action == ACT_TRIPLE_JUMP_LAND) {
+    if (m->action == ACT_JUMP_LAND) {
         queue_rumble_data(5, 40);
     }
 #endif
@@ -614,7 +616,7 @@ s32 act_wall_kick_air(struct MarioState *m) {
 s32 act_long_jump(struct MarioState *m) {
     s32 animation;
     if (!m->marioObj->oMarioLongJumpIsSlow) {
-        animation = MARIO_ANIM_FAST_LONGJUMP;
+        animation = MARIO_ANIM_SLOW_LONGJUMP;
     } else {
         animation = MARIO_ANIM_SLOW_LONGJUMP;
     }
@@ -678,10 +680,27 @@ s32 act_twirling(struct MarioState *m) {
     m->angleVel[1] = approach_s32_symmetric(m->angleVel[1], yawVelTarget, 0x200);
     m->twirlYaw += m->angleVel[1];
 
-    set_mario_animation(m, m->actionArg == 0 ? MARIO_ANIM_START_TWIRL : MARIO_ANIM_TWIRL);
-    if (is_anim_past_end(m)) {
-        m->actionArg = 1;
+     switch (m->actionArg) {
+    case 0:
+        set_mario_animation(m, MARIO_ANIM_DOUBLE_JUMP_RISE);
+        play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, SOUND_MARIO_YAHOO);
+        if (m->vel[1] < 5.0f) {
+            m->actionArg = 1;
+        }
+        break;
+
+    case 1:
+        set_mario_animation(m, MARIO_ANIM_START_TWIRL);
+        if (is_anim_past_end(m)) {
+            m->actionArg = 2;
+        }
+        break;
+
+    case 2:
+        set_mario_animation(m, MARIO_ANIM_TWIRL);
+        break;
     }
+
 
     if (startTwirlYaw > m->twirlYaw) {
         play_sound(SOUND_ACTION_TWIRL, m->marioObj->header.gfx.cameraToObject);

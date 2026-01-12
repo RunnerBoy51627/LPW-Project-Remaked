@@ -41,9 +41,7 @@ struct LandingAction     sBackflipLandAction = {         4,               0,    
 Mat4 sFloorAlignMatrix[2];
 
 s16 tilt_body_running(struct MarioState *m) {
-    s16 pitch = find_floor_slope(m, 0);
-    pitch = pitch * m->forwardVel / 40.0f;
-    return -pitch;
+
 }
 
 void play_step_sound(struct MarioState *m, s16 frame1, s16 frame2) {
@@ -591,7 +589,7 @@ void anim_and_audio_for_walk(struct MarioState *m) {
                         animSpeed = (s32)(intendedSpeed / 4.0f * 0x10000);
                         set_mario_anim_with_accel(m, MARIO_ANIM_RUNNING, animSpeed);
                         play_step_sound(m, 9, 45);
-                        targetPitch = tilt_body_running(m);
+                        //targetPitch = tilt_body_running(m);
 
                         inLoop = FALSE;
                     }
@@ -716,16 +714,16 @@ void tilt_body_walking(struct MarioState *m, s16 startYaw) {
         s16 dYaw = m->faceAngle[1] - startYaw;
         //! (Speed Crash) These casts can cause a crash if (dYaw * forwardVel / 12) or
         //! (forwardVel * 170) exceed or equal 2^31.
-        s16 nextBodyRoll = -(s16)(dYaw * m->forwardVel / 12.0f);
-        s16 nextBodyPitch = (s16)(m->forwardVel * 170.0f);
+        s16 nextBodyRoll = -(s16)(dYaw * m->forwardVel / 0.0f);
+        s16 nextBodyPitch = (s16)(m->forwardVel * 0.0f);
 
-        nextBodyRoll  = CLAMP(nextBodyRoll, -DEGREES(30), DEGREES(30));
-        nextBodyPitch = CLAMP(nextBodyPitch,         0x0, DEGREES(30));
+        nextBodyRoll  = CLAMP(nextBodyRoll, -DEGREES(0), DEGREES(0));
+        nextBodyPitch = CLAMP(nextBodyPitch,         0x0, DEGREES(0));
 
-        marioBodyState->torsoAngle[2] = approach_s32(marioBodyState->torsoAngle[2], nextBodyRoll, 0x400, 0x400);
+        marioBodyState->torsoAngle[0] = approach_s32(marioBodyState->torsoAngle[0], nextBodyRoll, 0x400, 0x400);
         marioBodyState->torsoAngle[0] = approach_s32(marioBodyState->torsoAngle[0], nextBodyPitch, 0x400, 0x400);
     } else {
-        marioBodyState->torsoAngle[2] = 0;
+        marioBodyState->torsoAngle[0] = 0;
         marioBodyState->torsoAngle[0] = 0;
     }
 }
@@ -1291,7 +1289,7 @@ s32 act_crawling(struct MarioState *m) {
             break;
     }
 
-    s32 animSpeed = (s32)(m->intendedMag * 2.0f * 0x10000);
+    s32 animSpeed = (s32)(m->intendedMag * 1.0f * 0x10000);
     set_mario_anim_with_accel(m, MARIO_ANIM_CRAWLING, animSpeed);
     play_step_sound(m, 26, 79);
     return FALSE;

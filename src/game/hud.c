@@ -32,45 +32,91 @@
 #define HUD_BREATH_METER_HIDDEN_Y -20
 #endif
 
-// ------------- FPS COUNTER ---------------
-// To use it, call print_fps(x,y); every frame.
-#define FRAMETIME_COUNT 30
-
-OSTime frameTimes[FRAMETIME_COUNT];
-u8 curFrameTimeIndex = 0;
+// ================= DEBUG HUD =================
+#ifdef DEBUG_HUD
+#define FRAMETIME_COUNT_DEBUG 30
+OSTime frameTimesDebug[FRAMETIME_COUNT_DEBUG];
+u8 curFrameTimeIndexDebug = 0;
 
 #include "PR/os_convert.h"
 
 #ifdef USE_PROFILER
-float profiler_get_fps();
+float profiler_get_fps_debug();
 #else
-// Call once per frame
-f32 calculate_and_update_fps() {
+f32 calculate_and_update_fps_debug(void) {
     OSTime newTime = osGetTime();
-    OSTime oldTime = frameTimes[curFrameTimeIndex];
-    frameTimes[curFrameTimeIndex] = newTime;
+    OSTime oldTime = frameTimesDebug[curFrameTimeIndexDebug];
+    frameTimesDebug[curFrameTimeIndexDebug] = newTime;
 
-    curFrameTimeIndex++;
-    if (curFrameTimeIndex >= FRAMETIME_COUNT) {
-        curFrameTimeIndex = 0;
+    curFrameTimeIndexDebug++;
+    if (curFrameTimeIndexDebug >= FRAMETIME_COUNT_DEBUG) {
+        curFrameTimeIndexDebug = 0;
     }
-    return ((f32)FRAMETIME_COUNT * 1000000.0f) / (s32)OS_CYCLES_TO_USEC(newTime - oldTime);
+
+    return ((f32)FRAMETIME_COUNT_DEBUG * 1000000.0f) / (s32)OS_CYCLES_TO_USEC(newTime - oldTime);
 }
 #endif
 
-void print_fps(s32 x, s32 y) {
+void print_debug_fps(s32 x, s32 y) {
 #ifdef USE_PROFILER
-    f32 fps = profiler_get_fps();
+    f32 fps = profiler_get_fps_debug();
 #else
-    f32 fps = calculate_and_update_fps();
+    f32 fps = calculate_and_update_fps_debug();
 #endif
-    char text[14];
-
+    char text[16];
     sprintf(text, "FPS %2.2f", fps);
 #ifdef PUPPYPRINT
     print_small_text(x, y, text, PRINT_TEXT_ALIGN_LEFT, PRINT_ALL, FONT_OUTLINE);
 #else
     print_text(x, y, text);
+#endif
+}
+#endif
+
+// ================= ACTUAL HUD =================
+#define FRAMETIME_COUNT_HUD 30
+OSTime frameTimesHUD[FRAMETIME_COUNT_HUD];
+u8 curFrameTimeIndexHUD = 0;
+
+#ifdef USE_PROFILER
+float profiler_get_fps_hud();
+#else
+f32 calculate_and_update_fps_hud(void) {
+    OSTime newTime = osGetTime();
+    OSTime oldTime = frameTimesHUD[curFrameTimeIndexHUD];
+    frameTimesHUD[curFrameTimeIndexHUD] = newTime;
+
+    curFrameTimeIndexHUD++;
+    if (curFrameTimeIndexHUD >= FRAMETIME_COUNT_HUD) {
+        curFrameTimeIndexHUD = 0;
+    }
+
+    return ((f32)FRAMETIME_COUNT_HUD * 1000000.0f) / (s32)OS_CYCLES_TO_USEC(newTime - oldTime);
+}
+#endif
+
+void print_hud_fps(s32 x, s32 y) {
+#ifdef USE_PROFILER
+    f32 fps = profiler_get_fps_hud();
+#else
+    f32 fps = calculate_and_update_fps_hud();
+#endif
+    char text[16];
+    sprintf(text, "FPS %2.2f", fps);
+#ifdef PUPPYPRINT
+    print_small_text(x, y, text, PRINT_TEXT_ALIGN_LEFT, PRINT_ALL, FONT_OUTLINE);
+#else
+    print_text(x, y, text);
+#endif
+}
+
+// ================= LINKER WRAPPER =================
+// This satisfies old SM64 calls
+f32 calculate_and_update_fps(void) {
+#ifdef DEBUG_HUD
+    return calculate_and_update_fps_debug();
+#else
+    return calculate_and_update_fps_hud();
 #endif
 }
 
@@ -425,9 +471,19 @@ void render_debug_mode(void) {
  * Renders the amount of coins collected.
  */
 void render_hud_coins(void) {
-    print_text(HUD_COINS_X, (HUD_TOP_Y - 17), "$"); // 'Coin' glyph
-    print_text((HUD_COINS_X + 16), (HUD_TOP_Y - 17), "*"); // 'X' glyph
-    print_text_fmt_int((HUD_COINS_X + 30), (HUD_TOP_Y- 17), "%02d", gHudDisplay.coins);
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), (HUD_TOP_Y - 34), "$"); // 'Coin' glyph
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(38), (HUD_TOP_Y - 34), "*"); // 'X' glyph
+    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(54), (HUD_TOP_Y- 34), "%02d", gHudDisplay.coins);
+}
+
+void render_hud_fps(void) {
+    f32 fps = calculate_and_update_fps_hud();
+
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), HUD_TOP_Y - 192, "FPS");
+
+    char fpsText[16];
+    sprintf(fpsText, "%2.2f", fps);
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(66), HUD_TOP_Y - 192, fpsText);
 }
 
 /**
@@ -445,14 +501,16 @@ void render_hud_stars(void) {
 }
 */
 void render_hud_stars(void) {
-    print_text(HUD_COINS_X, (HUD_TOP_Y), "^"); // 'Coin' glyph
-    print_text((HUD_COINS_X + 16), (HUD_TOP_Y), "*"); // 'X' glyph
-    print_text_fmt_int((HUD_COINS_X + 30), (HUD_TOP_Y), "%02d", gHudDisplay.stars);
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), (HUD_TOP_Y - 17), "^"); // 'Coin' glyph
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(38), (HUD_TOP_Y- 17), "*"); // 'X' glyph
+    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(54), (HUD_TOP_Y- 17), "%03d", gHudDisplay.stars);
 }
 /**
  * Unused function that renders the amount of keys collected.
  * Leftover function from the beta version of the game.
  */
+// Unused.
+/*
 void render_hud_keys(void) {
     s16 i;
 
@@ -460,7 +518,12 @@ void render_hud_keys(void) {
         print_text((i * 16) + 220, 142, "|"); // unused glyph - beta key
     }
 }
-
+*/
+void render_hud_keys(void) {
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(22), (HUD_TOP_Y - 51), "|"); // 'Coin' glyph
+    print_text(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(38), (HUD_TOP_Y - 51), "*"); // 'X' glyph
+    print_text_fmt_int(GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(54), (HUD_TOP_Y- 51), "%02d", gHudDisplay.keys);
+}
 /**
  * Renders the timer when Mario start sliding in PSS.
  */
@@ -572,26 +635,29 @@ void render_hud(void) {
 #else
         create_dl_ortho_matrix();
 #endif
-
+            render_hud_fps();
         if (gCurrentArea != NULL && gCurrentArea->camera->mode == CAMERA_MODE_INSIDE_CANNON) {
             render_hud_cannon_reticle();
         }
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_LIVES) {
             render_hud_mario_lives();
+
+\
         }
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_COIN_COUNT) {
-
+            render_hud_coins();
+            render_hud_keys();
         }
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_STAR_COUNT) {
             render_hud_stars();
-            render_hud_coins();
+
         }
 
         if (hudDisplayFlags & HUD_DISPLAY_FLAG_KEYS) {
-            render_hud_keys();
+
         }
 
 #ifdef BREATH_METER
